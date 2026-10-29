@@ -36,9 +36,10 @@
 | **代码功能** | 语法高亮 | 集成 highlight.js，支持多种语言 |
 | | 代码复制按钮 | 一键复制代码块内容 |
 | | Mermaid 图表 | 支持流程图、时序图等 Mermaid 图表渲染 |
-| **评论系统** | 后端支持 | 依赖 [comments-worker](https://github.com/love98ooo/comments-worker) 提供后端服务 |
-| | 多种登录方式 | 支持 GitHub OAuth 和邮箱验证码登录 |
-| | Cloudflare Turnstile | 集成人机验证，防止垃圾评论 |
+| **评论系统** | [Waline](https://waline.js.org/) | 自托管评论系统，需单独部署服务端 |
+| | 登录与评论管理 | 使用 Waline 自带的后台、登录与评论管理功能 |
+| | 可选人机验证 | 支持 Cloudflare Turnstile 等验证方式 |
+| | 暗色模式 | 评论配色跟随主题深色/浅色切换 |
 | **页面模板** | 首页 | `home.html` - 文章列表展示 |
 | | 文章页 | `single.html` - 完整文章阅读 |
 | | 归档页 | `archives.html` - 时间线样式的文章归档 |
@@ -127,12 +128,17 @@ params:
       avatar: "https://example.com/avatar.jpg"
       desc: "一个有趣的博客"
 
-  # 后端部署请参考：https://github.com/love98ooo/comments-worker
-  # 评论系统配置（可选）
+  # 评论系统（Waline），需先部署服务端：https://waline.js.org/guide/deploy/
   comments:
     enabled: true
-    apiUrl: "https://your-api.example.com"
-    turnstileSiteKey: "your-turnstile-site-key"
+    serverURL: "https://your-waline.vercel.app"
+    # 以下均为可选
+    lang: "zh-CN"                  # 界面语言，默认 zh-CN
+    login: "enable"                # enable | disable | force
+    requiredMeta: ["nick", "mail"] # 强制填写昵称/邮箱
+    reaction: false                # 文章表情回应
+    turnstileKey: ""               # Cloudflare Turnstile site key
+    clientCDN: "https://cdn.jsdelivr.net/npm/@waline/client@v3/dist"
 
 # 导航菜单
 menus:
@@ -157,6 +163,44 @@ menus:
       weight: 60
 ```
 
+> `hugo.toml` 用户对应写法为 `[params.comments]`，键名相同。
+
+---
+
+## 评论系统（Waline）
+
+主题使用 [Waline](https://waline.js.org/) 作为评论系统。评论数据保存在你自己部署的 Waline 服务端，主题本身不包含后端。
+
+### 1. 部署服务端
+
+按官方文档选择一种部署方式（Vercel、Netlify、Cloudflare Workers、Docker 等）：
+
+- 部署指南：<https://waline.js.org/guide/deploy/>
+- 以 Vercel 为例：使用官方模板创建项目，配置 PostgreSQL 数据库（如 Neon），在数据库中执行项目内的 `waline.pgsql` 建表脚本，然后重新部署。
+
+### 2. 配置主题
+
+把部署得到的地址填入站点的 `comments.serverURL`：
+
+```yaml
+params:
+  comments:
+    enabled: true
+    serverURL: "https://your-waline.vercel.app"
+```
+
+完整配置项见上方[配置](#配置)章节。
+
+### 3. 注册管理员
+
+首次部署后访问 `<serverURL>/ui/register` 注册账号，第一个注册的用户即为管理员；之后在 `<serverURL>/ui` 管理评论。
+
+### 4. 可选：Cloudflare Turnstile
+
+在 Waline 服务端设置环境变量 `TURNSTILE_SECRET`，并在主题配置中填写 `comments.turnstileKey`（站点 key）即可启用。
+
+> 旧版 comments-worker 后端已不再使用，旧评论数据不会自动迁移。
+
 ---
 
 ## 目录结构
@@ -171,13 +215,12 @@ themes/Sakura/
 │   │   ├── content.css  # 内容区样式
 │   │   ├── posts.css    # 文章列表样式
 │   │   ├── sections.css # 各页面区块样式
-│   │   ├── comments.css # 评论区样式
+│   │   ├── comments.css # Waline 评论区容器布局
 │   │   ├── toc.css      # 目录样式
 │   │   └── components.css # 组件样式
 │   └── js/
 │       ├── main.js      # 主要 JS 功能
-│       ├── toc.js       # 目录滚动跟踪
-│       └── comments.js  # 评论系统
+│       └── toc.js       # 目录滚动跟踪
 ├── layouts/
 │   ├── baseof.html      # 基础模板
 │   ├── home.html        # 首页
@@ -352,5 +395,6 @@ layout: "about"
 ## 致谢
 
 - [Sakura](https://github.com/mashirozx/Sakura) - 设计灵感来源
+- [Waline](https://waline.js.org/) - 评论系统
 - [highlight.js](https://highlightjs.org/) - 代码语法高亮
 - [Mermaid](https://mermaid.js.org/) - 图表渲染
