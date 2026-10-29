@@ -21,6 +21,7 @@
     initCodeCopyButtons();
     initMermaid();
     initShareButton();
+    initRuntimeCounter();
   }
 
   /**
@@ -417,6 +418,38 @@
         console.error('Failed to copy URL:', err);
       }
     });
+  }
+
+  /**
+   * Footer Runtime Counter
+   */
+  function initRuntimeCounter() {
+    const container = document.querySelector('[data-runtime-start]');
+    if (!container) return;
+
+    const startTime = Number(container.dataset.runtimeStart) * 1000;
+    if (!Number.isFinite(startTime)) return;
+
+    const daysEl = container.querySelector('[data-runtime-days]');
+    const hoursEl = container.querySelector('[data-runtime-hours]');
+    const minutesEl = container.querySelector('[data-runtime-minutes]');
+    const secondsEl = container.querySelector('[data-runtime-seconds]');
+
+    function update() {
+      const totalSeconds = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      if (daysEl) daysEl.textContent = days;
+      if (hoursEl) hoursEl.textContent = hours;
+      if (minutesEl) minutesEl.textContent = minutes;
+      if (secondsEl) secondsEl.textContent = seconds;
+    }
+
+    update();
+    setInterval(update, 1000);
   }
 
 })();

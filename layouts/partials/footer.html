@@ -8,6 +8,22 @@
     <a href="{{ `/` | relURL }}">{{ site.Title }}</a>
     {{ with site.Params.author }} · {{ . }}{{ end }}
   </p>
+
+  {{- /* 运行时长：从最早的一篇文章开始计算 */ -}}
+  {{- $mainSections := site.Params.mainSections | default (slice "posts" "archives") -}}
+  {{- $posts := where site.RegularPages "Section" "in" $mainSections -}}
+  {{- with $posts.ByDate -}}
+    {{- $first := index . 0 -}}
+    {{- $seconds := int (now.Sub $first.Date).Seconds -}}
+    {{- $seconds = cond (lt $seconds 0) 0 $seconds -}}
+    <p class="footer-runtime" data-runtime-start="{{ $first.Date.Unix }}">
+      感谢陪伴：<span data-runtime-days>{{ div $seconds 86400 }}</span> 天
+      <span data-runtime-hours>{{ div (mod $seconds 86400) 3600 }}</span> 小时
+      <span data-runtime-minutes>{{ div (mod $seconds 3600) 60 }}</span> 分
+      <span data-runtime-seconds>{{ mod $seconds 60 }}</span> 秒
+    </p>
+  {{- end }}
+
   <p class="footer-theme">
     Theme <a href="https://github.com/love98ooo/Hugo-Sakura-Lite" target="_blank" rel="noopener">Sakura</a> for Hugo
   </p>

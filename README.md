@@ -48,6 +48,7 @@
 | | 搜索页 | `search.html` - 全站搜索 |
 | | 分类/标签页 | `taxonomy.html`, `term.html` - 分类和标签列表 |
 | **其他特性** | RSS 订阅 | 自动生成 RSS Feed |
+| | 运行时长 | 页脚显示从第一篇文章至今的陪伴时长 |
 | | Open Graph | 完整的 OG 标签支持，优化社交分享 |
 | | Twitter Card | 支持 Twitter 卡片预览 |
 | | SEO 优化 | 规范的 meta 标签和 canonical 链接 |
