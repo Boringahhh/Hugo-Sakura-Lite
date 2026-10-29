@@ -18,6 +18,9 @@ title = 'My New Hugo Site'
     pageRef = '/tags'
     weight = 30
 
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+
 [module]
   [module.hugoVersion]
     extended = false
