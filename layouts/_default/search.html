@@ -137,7 +137,15 @@
     searchInput.addEventListener('input', debounce(function() {
       performSearch(this.value);
     }, 300));
-    
+
+    // 回车立即搜索（输入法组合状态下不触发）
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+        performSearch(this.value);
+      }
+    });
+
     searchClear.addEventListener('click', function() {
       searchInput.value = '';
       searchInput.focus();
